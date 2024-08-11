@@ -1,9 +1,338 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<section class="p-8 space-y-5">
-    <h1 class="font-semibold text-2xl">Crear Ventas</h1>
+<!-- 
+100: '#272B30',
+200: '#1A1D1F',
+ -->
+<section class="relative">
+    <div class="mr-[25%] p-8">
+        <div class="justify-between flex">
+            <h1 class="font-semibold text-2xl">Crear Venta</h1>
+            <!-- FECHA -->
+            <input type="date" class="p-2 ">
+        </div>
+
+        <!-- BUSCADOR -->
+        <div class="mt-4 bg-gray-50 shadow-md rounded-sm">
+            <!-- COMBO BOX PRODUCTOS -->
+            <div class="grid grid-cols-3 gap-4 p-3">
+                
+                <select name="producto" id="comboProductos" class="p-2 inline-block">
+                    <option value="0">Seleccione Producto</option>
+                    {% for producto in productos %}
+                        <option value="{{ producto.id }}">{{ producto.descripcion }}</option>
+                    {% endfor %}
+                </select>
+                <label for="" class="inline-block">
+                    Precio:
+                    <input type="text" class="p-2" placeholder="Precio" value="" disabled>
+                </label>
+                <label for="">
+                    Unidad:
+                    <input type="text" class="p-2" placeholder="Unidad" value="" disabled>
+                </label>
+            </div>
+
+            <!-- INPUT CANTIDAD Y BOTONES AGREGAR A CARRITO -->
+            <div class="pt-4 p-3 flex items-end gap-5">
+                <label for="" class="inline-flex flex-col">
+                    Cantidad:
+                    <input type="text" class="p-2" placeholder="Cantidad">
+                </label>
+                <button class="bg-green-500 text-white p-2 rounded-sm" id="agregarDetalle">AGREGAR</button>
+            </div>
+        </div>
+
+        <div>
+            <!-- TABLA DEL DETALLE VENTA -->
+            <table class="w-full mt-10">
+                <thead>
+                    <tr class="">
+                        <th class="p-2 text-start text-gray-400 font-semibold pb-5 border-b">#</th>
+                        <th class="p-2 text-start text-gray-400 font-semibold pb-5 border-b">Codigo</th>
+                        <th class="p-2 text-start text-gray-400 font-semibold pb-5 border-b">Producto</th>
+                        <th class="p-2 text-start text-gray-400 font-semibold pb-5 border-b">Unidad</th>
+                        <th class="p-2 text-start text-gray-400 font-semibold pb-5 border-b">Cantidad</th>
+                        <th class="p-2 text-start text-gray-400 font-semibold pb-5 border-b">P. venta</th>
+                        <th class="p-2 text-start text-gray-400 font-semibold pb-5 border-b">Importe</th>
+                        <th class="border-b"></th>
+                    </tr>
+                </thead>
+                <tbody id="llenadoTabla">
+
+                </tbody>
+        </div>
+
+    </div>
+    
+
+
+
+    <div class="absolute top-0 right-0 h-screen bg-[#1A1D1F] w-[25%] p-8">
+        <div class="text-white flex justify-between items-center border-[#272B30] border-b-2 pb-4">
+            <h1 class=" font-semibold">SubTotal: </h1>
+            <h1 id="subtotal" class=" font-semibold">$ 0</h1>
+        </div>
+        <div class="text-white flex justify-between items-center border-[#272B30] border-b-2 py-4">
+            <h1 class=" font-semibold">Igv: </h1>
+            <h1 class=" font-semibold"><span id="igv">0</span>%</h1>
+        </div>
+        <!-- TOTAL -->
+        <div class="text-white flex justify-between items-center border-[#272B30] border-b-2 py-4">
+            <h1 class="text-3xl font-semibold text-red-500">TOTAL: </h1>
+            <h1 class="text-4xl font-semibold" id="total">$ 0</h1>
+        </div>
+        <!-- CLIENTE INFO -->
+        <div class="py-5 space-y-4">
+            <!-- LISTADO EN COMBO BOX DE CLIENTES -->            
+            <p for="cliente" class="text-gray-400">CLINTE INFO</p>
+            <select name="cliente" id="comboClientes" class="bg-[#272B30] text-white p-2 inline-block w-full" >
+                <option value="0">Seleccione Cliente</option>
+                {% for cliente in clientes %}
+                    <option value="{{ cliente.id }}">{{ cliente.nombres }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" value="" class="block w-full" disabled placeholder="ruc_dni">
+        </div>
+
+        <!-- TIPO DE VENTA -->
+        <div class="space-y-4 mt-7">
+            <p for="tipo_venta" class="text-gray-400">TIPO DE VENTA</p>
+            <select name="tipo_venta" id="tipo_venta" class="bg-[#272B30] text-white p-2 inline-block w-full">
+                {% for tipo_venta in tipo_ventas %}
+                    <option value="{{ tipo_venta.id }}">{{ tipo_venta.descripcion }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <!-- BOTONES -->
+        <div class="mt-[100px] grid grid-cols-2 gap-4">
+            <button class="bg-red-500 font-semibold text-white p-2" id="GuardarTodo" >GUARDAR</button>
+            <button class="bg-white font-semibold text-[#272B30] p-2">CANCELAR</button>
+        </div>
+    </div>
 </section>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+
+    function colocarFechaActual(){
+        const fecha = new Date();
+        const dia = fecha.getDate();
+        const mes = fecha.getMonth() + 1;
+        const anio = fecha.getFullYear();
+        const fechaActual = `${anio}-${mes < 10 ? '0' + mes : mes}-${dia < 10 ? '0' + dia : dia}`;
+        document.querySelector('input[type="date"]').value = fechaActual;
+    }
+    colocarFechaActual();
+
+    async function getCliente(id) {
+        const url = `{% url 'get_cliente' id=0 %}`.replace('0', id);
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    }
+
+    async function getProducto(id) {
+        const url = `{% url 'get_producto' id=0 %}`.replace('0', id);
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    }
+
+    document.getElementById('comboProductos').addEventListener('change', function(){
+        if (this.value == 0) {
+            document.querySelector('input[placeholder="Precio"]').value = "";
+            document.querySelector('input[placeholder="Unidad"]').value = "";
+            return;
+        }
+        getProducto(this.value).then(data => {
+            document.querySelector('input[placeholder="Precio"]').value = data.precio;
+            document.querySelector('input[placeholder="Unidad"]').value = data.unidad;
+        });
+    });
+
+    document.getElementById('comboClientes').addEventListener('change', function(){
+        if (this.value == 0) {
+            document.querySelector('input[placeholder="ruc_dni"]').value = "";
+            return;
+        }
+        getCliente(this.value).then(data => {
+            document.querySelector('input[placeholder="ruc_dni"]').value = data.ruc_dni;
+        });
+    });
+
+    limpiarDetalles = () => {
+        // quiero cambiar el combo de productos a su valor por defecto
+        document.getElementById('comboProductos').value = 0;
+        document.querySelector('input[placeholder="Precio"]').value = "";
+        document.querySelector('input[placeholder="Unidad"]').value = "";
+        document.querySelector('input[placeholder="Cantidad"]').value = "";
+    };
+
+    const detalles = [];
+    let counter = 1;
+
+    document.getElementById('agregarDetalle').addEventListener('click', function(){
+        const id_producto = document.getElementById('comboProductos').value;
+
+        if (id_producto == 0) {
+            alert('Seleccione un producto');
+            return;
+        
+        }
+        const cantidad = parseInt(document.querySelector('input[placeholder="Cantidad"]').value);
+        
+        if (isNaN(cantidad) || cantidad <= 0) {
+            alert('Ingrese una cantidad válida mayor a 0');
+            return;
+        }        
+        
+        getProducto(id_producto).then(producto => {
+            if (producto.stock < cantidad) {
+                alert('No hay suficiente stock');
+                return;
+            }
+    
+            const precio = document.querySelector('input[placeholder="Precio"]').value;
+            const unidad = document.querySelector('input[placeholder="Unidad"]').value;
+    
+            // Asegúrate de tener una variable `counter` definida en el ámbito adecuado.
+            const detalle = {
+                id: counter, // `counter` debe ser una variable previamente definida y actualizada
+                precio: precio,
+                cantidad: cantidad,
+                producto: {
+                    id: id_producto,
+                    descripcion: producto.descripcion
+                },
+                unidad: unidad
+            };
+            counter++;
+            detalles.push(detalle);
+            llenarTabla();
+            limpiarDetalles();
+            console.log(detalle);
+        }).catch(error => {
+            console.error('Error al obtener el producto:', error);
+        });
+
+    });
+
+    document.getElementById('llenadoTabla').addEventListener('click', function(event) {
+        if (event.target.closest('button') && event.target.closest('button').id.startsWith('detalle-')) {
+            const button = event.target.closest('button');
+            const detalleId = parseInt(button.getAttribute('count-id'));
+    
+            // Encuentra el índice del detalle a eliminar
+            const index = detalles.findIndex(detalle => detalle.id === detalleId);
+            if (index !== -1) {
+                // Elimina el detalle del array
+                detalles.splice(index, 1);
+                // Vuelve a llenar la tabla con los detalles actualizados
+                llenarTabla();
+            }
+            console.log(detalles);
+        }
+    });
+
+    llenarTabla = () => {
+        const body = document.getElementById('llenadoTabla');
+        body.innerHTML = '';
+
+        detalles.forEach((detalle, i) => {
+            body.innerHTML += `
+                <tr>
+                        <td class="p-2 border-b">${i+1}</td>
+                        <td class="p-2 border-b">00100010</td>
+                        <td class="p-2 border-b">${detalle.producto.descripcion}</td>
+                        <td class="p-2 border-b">${detalle.unidad}</td>
+                        <td class="p-2 border-b">
+                            <button class="py-1 px-2 rounded-sm border">+</button>
+                            ${detalle.cantidad}
+                            <button class="py-1 px-2 rounded-sm border">-</button>
+                        </td>
+                        <td class="p-2 border-b">${detalle.precio}$</td>
+                        <td class="p-2 border-b">${(detalle.cantidad * detalle.precio).toFixed(2)}$</td>
+                        <td class="p-2 border-b">
+                            <button class="p-2 rounded-sm" count-id=${detalle.id} id='detalle-${detalle.id}'>
+                                <svg class="h-8 w-8 text-red-500"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  <polyline points="3 6 5 6 21 6" />  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />  <line x1="10" y1="11" x2="10" y2="17" />  <line x1="14" y1="11" x2="14" y2="17" /></svg>
+                            </button>
+                        </td>
+                    </tr>
+            `;
+        })
+        const subtotal = detalles.reduce((acc, detalle) => acc + (detalle.cantidad * detalle.precio), 0);
+        const igv = 0.18*subtotal;
+        const total = subtotal + igv;
+        document.getElementById('subtotal').textContent = `$ ${subtotal.toFixed(2)}`;
+        document.getElementById('igv').textContent = `$ ${igv.toFixed(2)}`;
+        document.getElementById('total').textContent = `$ ${total.toFixed(2)}`;
+    }
+
+    
+
+
+    document.getElementById('GuardarTodo').addEventListener('click', function(){
+        const cliente = document.getElementById('comboClientes').value;
+        const tipo_venta = document.getElementById('tipo_venta').value;
+        const fecha = document.querySelector('input[type="date"]').value;
+
+        if (cliente == 0) {
+            alert('Seleccione un cliente');
+            return;
+        }
+
+        if (tipo_venta == 0) {
+            alert('Seleccione un tipo de venta');
+            return;
+        }
+
+        if (detalles.length === 0) {
+            alert('Agregue al menos un producto');
+            return;
+        }
+
+        const data = {
+            cliente_id: cliente,
+            tipo_venta: tipo_venta,
+            fecha: fecha,
+            detalles: formatearDetalles(detalles)
+        };
+
+        console.log(data);
+
+        fetch('{% url "create_venta" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(data)
+        }).then(response => {
+            if (response.ok) {
+                alert('Venta registrada correctamente');
+                window.location.href = '{% url "detalle_venta" %}';
+            } else {
+                alert('Ocurrió un error al registrar la venta');
+            }
+        }).catch(error => {
+            console.error('Error al registrar la venta:', error);
+        });
+        
+    });
+
+    function formatearDetalles(detalles) {
+        return detalles.map(detalle => ({
+            precio: detalle.precio,
+            cantidad: detalle.cantidad,
+            producto_id: detalle.producto.id
+        }));
+    }
+    
+</script>
 
 {% endblock %}
 
