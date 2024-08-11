@@ -1,0 +1,42 @@
+{% load static %}
+<nav class="absolute top-0 b-0 bg-gray-50 py-10 h-svh w-[250px]">
+    <div class=" px-8">
+        <img src="{% static 'img/logo.jpg' %}" alt="" class=" w-20 mb-10 rounded-md">
+    </div>
+    <ul class=" flex flex-col">
+
+        <li class="font-semibold px-8 py-3"><a href="{% url 'home' %}">Home</a></li>
+
+        {% if user.is_authenticated %}
+
+        <li class="hover:bg-gray-100">
+            <button class="font-semibold flex justify-between items-center w-full px-8 py-3" id="buttonStore">Store
+                <svg class="h-4 w-4" id="abajo" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  <polyline points="6 9 12 15 18 9" /></svg>
+                <svg class="h-4 w-4 hidden" id="arriba" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  <polyline points="18 15 12 9 6 15" /></svg>
+            </button>
+        </li>
+
+        <ul class="hidden" id="listStore">
+            <li class="px-8 py-2 text-gray-500 hover:text-violet-800 transition"><a href="{% url 'productos' %}">Productos</a></li>
+            <li class="px-8 py-2 text-gray-500 hover:text-violet-800 transition"><a href="{% url 'categorias' %}">Categorias</a></li>
+            <li class="px-8 py-2 text-gray-500 hover:text-violet-800 transition"><a href="{% url 'unidades' %}">Unidades</a></li>
+        </ul>
+        
+        <li class="hover:bg-gray-100 font-semibold transition"><a href="{% url 'clientes' %}" class=" px-8 py-3 inline-block">Clientes</a></li>
+        <li class="hover:bg-gray-100 font-semibold transition"><a href="" class=" px-8 py-3 inline-block">Ventas</a></li>
+        
+        <li class="hover:bg-gray-100 transition font-semibold px-8 py-3"><a href="{% url 'signout' %}">Logout</a></li>
+
+        {% else %}
+            <li class="px-8 py-2"><a href="{% url 'login' %}">Login</a></li>    
+        {% endif %}
+    </ul>
+
+    <script>
+        document.getElementById('buttonStore').addEventListener('click', () => {
+            document.getElementById('abajo').classList.toggle('hidden');
+            document.getElementById('arriba').classList.toggle('hidden');
+            document.getElementById('listStore').classList.toggle('hidden');
+        });
+    </script>
+</nav>

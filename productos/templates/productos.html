@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="p-8 space-y-5">
+    <div class="flex justify-between items-center mb-10">
+        <div class="space-y-2">
+            <h1 class="font-semibold text-2xl">Productos</h1>
+            <p>Listado de Productos</p>
+        </div>
+        <div>
+            <button class="bg-slate-950 text-white px-4 py-2 rounded-sm" id="addProducto">ADD Producto</button>
+        </div>
+    </div>
+    <div>
+        <table class="w-full">
+            <thead class="">
+                <tr class="bg-gray-50 rounded-md">
+                    <th class="px-4 py-2 text-start font-semibold mb-5">ID</th>
+                    <th class="px-4 py-2 text-start font-semibold mb-5">Descripcion</th>
+                    <th class="px-4 py-2 text-start font-semibold mb-5">Precio</th>
+                    <th class="px-4 py-2 text-start font-semibold mb-5">Stock</th>
+                    <th class="px-4 py-2 text-center font-semibold mb-5">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="py-6">
+                {% for producto in productos %}
+                <tr>
+                    <td class="px-4 py-4">{{ producto.id }}</td>
+                    <td class="px-4 py-2">{{ producto.descripcion }}</td>
+                    <td class="px-4 py-2">{{ producto.precio }}</td>
+                    <td class="px-4 py-2">{{ producto.stock }}</td>
+                    <td class="px-4 py-2 text-center">
+                        <button class="bg-slate-950 text-white px-4 py-1 rounded-sm" ><a href="{% url 'producto_edit' id=producto.id %}">Edit</a></button>
+                        <button class="bg-red-500 text-white px-4 py-1 rounded-sm"><a href="{% url 'producto_delete' id=producto.id %}">DELETE</a></button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Modal para agregar producto -->
+<div id="Modal" class="absolute top-0 right-0 h-screen w-full bg-opacity-20 bg-black m-0 justify-end hidden flex">
+    <div class="bg-white w-[30%] p-10">
+        <div class="flex justify-between items-center">
+            <p class="text-lg font-semibold">ADD UN PRODUCTO</p>
+            <button id="closeProducto">
+                <svg class="h-8 w-8 " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+        
+        <form id="productoForm" action="{% url 'productos' %}" method="POST" class="mt-5 space-y-5">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="bg-slate-950 text-white px-4 py-2 rounded-sm">ADD</button>
+            <p id="error_message" class="text-sm text-red-500"></p>
+        </form>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+    document.getElementById('addProducto').addEventListener('click', () => {
+        document.getElementById('Modal').classList.toggle('hidden');
+    });
+    document.getElementById('closeProducto').addEventListener('click', () => {
+        document.getElementById('Modal').classList.toggle('hidden');
+    });
+
+    document.getElementById('productoForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        guardarDatos();
+    });
+
+    async function postProducto(form) {
+        const response = await fetch('{% url "productos" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: form
+        });
+        const data = await response.json();
+        return data;
+    }
+
+    async function guardarDatos(){
+        const form = new FormData(document.getElementById('productoForm'));
+        data = await postProducto(form);
+        if (data.error){
+            document.querySelector('input[name=descripcion]').classList.add('border-red-500');
+            document.getElementById('error_message').innerText = data.error;
+
+            setTimeout(() => {
+                document.querySelector('input[name=descripcion]').classList.remove('border-red-500');
+                document.getElementById('error_message').innerText = '';
+            }, 5000);
+        }
+        if (data.success){
+            document.getElementById('Modal').classList.toggle('hidden');
+            window.location.reload();
+        }
+    }
+</script>
+{% endblock %}
