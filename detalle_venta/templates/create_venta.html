@@ -303,26 +303,23 @@
             detalles: formatearDetalles(detalles)
         };
 
-        console.log(data);
+        async function createVenta(data) {
+            const response = await fetch('{% url "create_venta" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
 
-        fetch('{% url "create_venta" %}', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify(data)
-        }).then(response => {
-            if (response.ok) {
-                alert('Venta registrada correctamente');
-                window.open(`{% url 'reporte_boleta' venta_id=0 %}`.replace('0', 1), '_blank');
-                window.location.href = '{% url "detalle_venta" %}';
-            } else {
-                alert('Ocurrió un error al registrar la venta');
-            }
-        }).catch(error => {
-            console.error('Error al registrar la venta:', error);
-        });
-        
+            const responseData = await response.json();
+            window.open(`{% url 'reporte_boleta' venta_id=0 %}`.replace('0', responseData.venta_id), '_blank');
+            window.location.href = '{% url "detalle_venta" %}';
+            console.log(responseData);
+        }
+        createVenta(data);
+
     });
 
     function formatearDetalles(detalles) {
