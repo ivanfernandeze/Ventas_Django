@@ -314,6 +314,7 @@
         }).then(response => {
             if (response.ok) {
                 alert('Venta registrada correctamente');
+                window.open(`{% url 'reporte_boleta' venta_id=0 %}`.replace('0', 1), '_blank');
                 window.location.href = '{% url "detalle_venta" %}';
             } else {
                 alert('Ocurrió un error al registrar la venta');

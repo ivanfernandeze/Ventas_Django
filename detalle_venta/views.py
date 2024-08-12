@@ -4,6 +4,10 @@ from clientes.models import Cliente
 from .models import Tipo_Venta, Detalle_Venta, Venta
 from django.http import JsonResponse
 import json
+from django.http import HttpResponse, JsonResponse
+from django.db.models import F, ExpressionWrapper, DecimalField
+from django.template.loader import render_to_string
+from weasyprint import HTML
 # Create your views here.
 
 IGV_RATE = 0.18
@@ -93,3 +97,37 @@ def create_venta(request):
             return JsonResponse({'message': 'Error al crear la venta'}, status=400)
 
     return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+def reporte_boleta(request, venta_id):
+    try:
+        venta = Venta.objects.get(id=venta_id)
+        detalles = Detalle_Venta.objects.filter(venta_id=venta_id).annotate(
+            total=ExpressionWrapper(
+                F('cantidad') * F('precio'),
+                output_field=DecimalField()
+            )
+        )
+        cliente = Cliente.objects.filter(id=venta.cliente_id, estado=True).first()
+        
+        # Contexto para la plantilla
+        ctx = {
+            'venta': venta,
+            'detalles': detalles,
+            'cliente': cliente,
+            'igv': IGV_RATE * 100
+        }
+
+        # Renderiza la plantilla HTML a un string
+        html_string = render_to_string('reportes/boleta.html', ctx)
+
+        # Genera el PDF
+        pdf = HTML(string=html_string).write_pdf()
+
+        # Crea la respuesta para enviar el PDF al navegador
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="boleta_{venta_id}.pdf"'
+
+        return response
+
+    except Venta.DoesNotExist:
+        return JsonResponse({'message': 'Venta no encontrada'}, status=404)
