@@ -4,13 +4,21 @@ from .models import Cliente
 from django.shortcuts import get_object_or_404
 from .forms import ClienteForm
 from django.http import JsonResponse
+from django.db.models import Q
 
 # Create your views here.
 class ClienteView(View):
     template_name = 'cliente.html'
 
     def get(self, request):
+        query = request.GET.get('q', '')
         clientes = Cliente.objects.filter(estado=True)
+
+        if query:
+            clientes = clientes.filter(
+                Q(nombres__icontains=query) | Q(ruc_dni__icontains=query) | Q(id__icontains=query)
+            )
+
         form = ClienteForm()
         ctx = {
             "clientes": clientes,
@@ -21,9 +29,9 @@ class ClienteView(View):
     def post(self, request):
         form = ClienteForm(request.POST)
         if form.is_valid():
-            nombres = form.cleaned_data['nombres']
+            ruc_dni = form.cleaned_data['ruc_dni']
             
-            if Cliente.objects.filter(nombres=nombres, estado=True).exists():
+            if Cliente.objects.filter(ruc_dni=ruc_dni, estado=True).exists():
                 return JsonResponse({"error": "El cliente ya existe"})
             else:
                 form.save()

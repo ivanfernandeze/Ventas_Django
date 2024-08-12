@@ -6,16 +6,19 @@
 
 <h1 class="title">Template LOGIN</h1>
 
-{% if error %}
-  <p class="error">Your username and password didn't match. Please try again.</p>
-{% endif %}
 
-<form method="POST" action="{% url 'login' %}">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
-
+<section class="">
+  <form method="POST" action="{% url 'login' %}" class="flex flex-col gap-3">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div clas>
+      <button class="bg-black text-white px-4 py-2" type="submit">Login</button>
+    </div>
+    {% if error %}
+      <p class="error">Your username and password didn't match. Please try again.</p>
+    {% endif %}
+  </form>
+</section>
 <style>
   .error {
     color: red;

@@ -3,12 +3,20 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Unidad
 from .forms import UnidadForm
+from django.db.models import Q
 
 class UnidadView(View):
     template_name = 'unidades.html'
 
     def get(self, request):
+        query = request.GET.get('q', '')
         unidades = Unidad.objects.filter(estado=True)
+        print(query)
+        if query:
+            unidades = unidades.filter(
+                Q(descripcion__icontains=query) | Q(id__icontains=query)
+            )
+
         form = UnidadForm()
         ctx = {
             "unidades": unidades,

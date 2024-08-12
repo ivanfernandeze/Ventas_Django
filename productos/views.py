@@ -5,12 +5,20 @@ from .models import Producto
 from .forms import ProductoForm
 from ventasApp.models import Categoria
 from unidades.models import Unidad
+from django.db.models import Q
 
 class ProductosView(View):
     template_name = 'productos.html'
 
     def get(self, request):
+        query = request.GET.get('q', '')
         productos = Producto.objects.filter(estado=True)
+
+        if query:
+            productos = productos.filter(
+                Q(descripcion__icontains=query) | Q(id__icontains=query)
+            )
+
         unidades = Unidad.objects.filter(estado=True)
         categorias = Categoria.objects.filter(estado=True)
         form = ProductoForm()

@@ -3,13 +3,20 @@ from django.views import View
 from django.http import HttpResponse, JsonResponse
 from .models import Categoria
 from .forms import CategoriaForm
-
+from django.db.models import Q
 
 class CategoriaView(View):
     template_name = 'categorias/categorias.html'
 
     def get(self, request):
+        query = request.GET.get('q', '')
         categorias = Categoria.objects.get_queryset().filter(estado=True)
+
+        if query:
+            categorias = categorias.filter(
+                Q(descripcion__icontains=query) | Q(id__icontains=query)
+            )
+
         form = CategoriaForm()
         ctx = {
             "categorias": categorias,
