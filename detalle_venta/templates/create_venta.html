@@ -196,6 +196,12 @@
                 alert('No hay suficiente stock');
                 return;
             }
+            
+            const productoExistente = detalles.find(detalle => detalle.producto.id === id_producto);
+            if (productoExistente) {
+                alert('Este producto ya ha sido agregado.');
+                return;
+            }
     
             const precio = document.querySelector('input[placeholder="Precio"]').value;
             const unidad = document.querySelector('input[placeholder="Unidad"]').value;
@@ -279,7 +285,7 @@
         document.getElementById('igv').textContent = `$ ${igv.toFixed(2)}`;
         document.getElementById('total').textContent = `$ ${total.toFixed(2)}`;
     }
-    
+
     function cambiarCantidad(id, cambio) {
         const detalle = detalles.find(detalle => detalle.id === id);
         
