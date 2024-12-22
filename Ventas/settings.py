@@ -54,7 +54,8 @@ TAILWIND_APP_NAME = 'theme'
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
-NPM_BIN_PATH = r'C:\Program Files\nodejs\npm.cmd'
+NPM_BIN_PATH = r'E:\Node.js\npm.cmd'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -95,7 +96,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'django_ventas',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': '',
         'HOST':'localhost',
         'PORT':'3306',
     }

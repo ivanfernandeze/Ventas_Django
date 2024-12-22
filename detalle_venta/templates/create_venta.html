@@ -6,6 +6,12 @@
 100: '#272B30',
 200: '#1A1D1F',
  -->
+<style>
+    .margen-50 {
+        margin-top: 50px;
+    }
+</style>
+
 <section class="relative">
     <div class="mr-[25%] p-8">
         <div class="justify-between flex">
@@ -68,9 +74,7 @@
     </div>
     
 
-
-
-    <div class="absolute top-0 right-0 h-screen bg-[#1A1D1F] w-[25%] p-8">
+    <div class="absolute top-0 right-0 max-h-full bg-[#1A1D1F] w-[25%] p-8">
         <div class="text-white flex justify-between items-center border-[#272B30] border-b-2 pb-4">
             <h1 class=" font-semibold">SubTotal: </h1>
             <h1 id="subtotal" class=" font-semibold">$ 0</h1>
@@ -81,8 +85,8 @@
         </div>
         <!-- TOTAL -->
         <div class="text-white flex justify-between items-center border-[#272B30] border-b-2 py-4">
-            <h1 class="text-3xl font-semibold text-red-500">TOTAL: </h1>
-            <h1 class="text-4xl font-semibold" id="total">$ 0</h1>
+            <h1 class="text-2xl font-semibold text-red-500">TOTAL: </h1>
+            <h1 class="text-3xl font-semibold" id="total">$ 0</h1>
         </div>
         <!-- CLIENTE INFO -->
         <div class="py-5 space-y-4">
@@ -107,7 +111,7 @@
             </select>
         </div>
         <!-- BOTONES -->
-        <div class="mt-[100px] grid grid-cols-2 gap-4">
+        <div class="mt-10  grid grid-cols-2 gap-4">
             <button class="bg-red-500 font-semibold text-white p-2" id="GuardarTodo" >GUARDAR</button>
             <button class="bg-white font-semibold text-[#272B30] p-2">CANCELAR</button>
         </div>

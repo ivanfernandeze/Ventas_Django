@@ -1,5 +1,7 @@
 from django import forms
 from .models import productoFields, Producto
+from unidades.models import Unidad
+from ventasApp.models import Categoria
 
 class ProductoForm(forms.ModelForm):
     class Meta:
@@ -22,3 +24,11 @@ class ProductoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProductoForm, self).__init__(*args, **kwargs)
+
+        # Filtrar categorías con estado = 1
+        categorias_activas = Categoria.objects.filter(estado=1)
+        self.fields['categoria'].queryset = categorias_activas
+
+        # Filtrar unidades con estado = 1
+        unidades_activas = Unidad.objects.filter(estado=1)
+        self.fields['unidad'].queryset = unidades_activas
