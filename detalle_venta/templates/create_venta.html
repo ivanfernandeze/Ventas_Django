@@ -25,7 +25,7 @@
             <!-- COMBO BOX PRODUCTOS -->
             <div class="grid grid-cols-3 gap-4 p-3">
                 
-                <select name="producto" id="comboProductos" class="p-2 inline-block">
+                <select name="producto" id="comboProductos" class=" inline-block">
                     <option value="0">Seleccione Producto</option>
                     {% for producto in productos %}
                         <option value="{{ producto.id }}">{{ producto.descripcion }}</option>
@@ -74,7 +74,7 @@
     </div>
     
 
-    <div class="absolute top-0 right-0 max-h-full bg-[#1A1D1F] w-[25%] p-8">
+    <div class="absolute top-0 right-0 bg-[#1A1D1F] w-[25%] p-8">
         <div class="text-white flex justify-between items-center border-[#272B30] border-b-2 pb-4">
             <h1 class=" font-semibold">SubTotal: </h1>
             <h1 id="subtotal" class=" font-semibold">$ 0</h1>

@@ -923,6 +923,10 @@ select {
   height: 100svh;
 }
 
+.h-full {
+  height: 100%;
+}
+
 .max-h-full {
   max-height: 100%;
 }
